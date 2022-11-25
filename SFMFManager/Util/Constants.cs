@@ -24,41 +24,9 @@ namespace SFMFManager.Util
         public static string ManagedLocation => $"{AbsoluteInstallDirectory}/superflight_Data/Managed";
         public static string AssemblyLocation => $"{ManagedLocation}/{SFAssemblyFileName}";
         public static string AssemblyBackupLocation => $"{AssemblyLocation}.backup";
-        private static string _absoluteInstallDirectory;
+        private static string _absoluteInstallDirectory = "D:\SteamLibrary\steamapps\common\SuperFlight";
 
-        public static string AbsoluteInstallDirectory
-        {
-            get
-            {
-                if (_absoluteInstallDirectory != null)
-                    return _absoluteInstallDirectory;
-
-                string steamDirectory = Registry.GetValue($"{SteamRegistry}", "SteamPath", null)?.ToString();
-                if (steamDirectory != null)
-                {
-                    var steamInstallLocations = new List<string> { steamDirectory };
-
-                    var configLines = File.ReadAllLines($"{steamDirectory}/{SteamConfig}").ToList();
-
-                    steamInstallLocations.AddRange(configLines
-                        .Where(l => l.Contains("BaseInstallFolder_"))
-                        .Select(ExtractValueFromVDF));
-
-                    foreach (var location in steamInstallLocations)
-                    {
-                        var assemblyFile = new FileInfo($"{location}/{SuperflightDirectory}/{SFManagedDirectory}/{SFAssemblyFileName}");
-                        if (assemblyFile.Exists)
-                        {
-                            _absoluteInstallDirectory = $"{location}/{SuperflightDirectory}";
-                            return _absoluteInstallDirectory;
-                        }
-                    }
-                }
-
-                return null;
-            }
-        }
-
+   
         private static string ExtractValueFromVDF(string vdfLine)
         {
             var re = new Regex(@"\s*""BaseInstallFolder_\d+""\s+""(?<Value>.+)""\s*");
